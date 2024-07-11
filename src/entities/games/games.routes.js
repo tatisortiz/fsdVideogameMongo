@@ -6,7 +6,7 @@ const router = Router()
 router.post('/', createGame)
 router.get('/', getAllGames)
 router.put('/', updateGames)
-router.delete('/',deleteGame)
+router.delete('/:id',deleteGame)
 
 
 export {router}
