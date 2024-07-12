@@ -49,6 +49,11 @@ export const createGame = async (req, res) => {
 export const getAllGames = async (req,res) => {
     try {
   const games=  await Game.find()
+  .select('-updatedAt')
+  .populate({
+    path: 'userFavourites',
+    select: "-password"
+  })
     
   res.status(200).json(
     {
@@ -135,5 +140,46 @@ export const deleteGame= async(req, res) =>{
           message:"Error deleting games",
           error:error.message
       })
+  }
+}
+
+export const addFavouriteGame = async (req, res) => {
+  try {
+
+   const gameId = req.params.id
+   const userId = req.tokenData.id
+
+   const game = await Game.findById(id)
+    
+   if(!game){
+    return res.status(404).json(
+      {
+        success: false,
+        message: "Game not found"
+      }
+    )
+   }
+    
+   //game.userFavourites.push(userId)
+   game.userFavourites.includes(userId)
+  const upadateGame= await game.save()
+
+  res.json(
+    {
+      success: true,
+      message: "User added to favourite game",
+      data: upadateGame
+    }
+  )
+
+  
+  } catch (error) {
+    res.status(500).json(
+      {
+         success: false,
+         message: "Error adding user to favourite",
+         error: error.message
+      }
+    )
   }
 }

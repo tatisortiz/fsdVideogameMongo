@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 
+
 const Gameshema = new Schema(
 { 
    title:{
@@ -12,6 +13,13 @@ const Gameshema = new Schema(
     required: true,
 
    },
+
+   userFavourites: [
+    {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
+   ]
 },
 {
     timestamps: true,

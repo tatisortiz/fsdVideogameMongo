@@ -35,70 +35,76 @@ try {
 }
 }
 
-export const login= async (req,res) => {
+export const login = async (req, res) => {
     try {
-        //recuperamos
-        const { email, password } = req.body;
 
-    // validamos
-    // if (!email || !password) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Email and password are needed",
-    //   });
-    // }
+        const { email, password } = req.body
 
- 
-    const user = await User.findOne({
-       email: email ,
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "user or password not valid",
-      });
-    }
-
-    const token = jwt.sing(
-        {
-            id: user_id,
-            role: user.role
-
-        },
-
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "2h"
+        if (!email || !password) {
+            return res.status(400).json(
+                {
+                    success: true,
+                    message: 'email and password are required'
+                }
+            )
         }
-    )
 
-    res.status(200).json(
-        {
-            success: true,
-            message: "user loggin",
-            data: token
+        const user = await User.findOne(
+            {
+                email: email
+            }
+        )
+
+        console.log(user)
+
+        if (!user) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'email or password are invalid'
+                }
+            )
         }
-    )
 
+        const passwordVerified = bcrypt.compareSync(password, user.password)
 
+        if (!passwordVerified) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'email or password are invalid'
+                }
+            )
+        }
 
+        const token = jwt.sign(
+            {
+                _id: user._id,
+                roles: user.roles,
+            },
 
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "2h"
+            }
+        )
 
-    if (!isPasswordValid) {
-      return res.status(400).json({
-        success: false,
-        message: "user or password not valid",
-      });
-    }
+        res.status(200).json(
+            {
+                success: true,
+                message: 'User logged',
+                data: token
+            }
+        )
+
     } catch (error) {
-      res.status(500).json(
-        {
-           success: false,
-           message: "Error loggin user"
-        }
-      )
-        
+        res.status(500).json(
+            {
+                success: false,
+                message: 'Error loggin user',
+                error: error
+            }
+        )
+
     }
 }
